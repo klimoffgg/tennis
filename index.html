@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Турнирная сетка</title>
+<meta name="description" content="Турнир по настольному теннису среди жителей общежития: сетка и результаты">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FBF3E8; --card:#FFFFFF; --card-done:#FFFFFF; --line:rgba(58,7,16,.14);
+  --fg:#2A0409; --muted:#6B2A33; --dim:rgba(42,4,9,.5); --accent:#FF8A3D; --ink:#2A0409;
+  --brand:#3A0710; --cream:#FBEEDB;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+body{font-family:'Manrope',system-ui,sans-serif;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1280px;margin:0 auto;padding:28px 16px 64px}
+@media (min-width:720px){.wrap{padding:44px 32px 80px}}
+.brand{display:flex;align-items:center;gap:14px}
+.brand svg{width:48px;height:48px;flex:none}
+.brand span{font-family:'Unbounded',sans-serif;font-weight:500;font-size:13px;letter-spacing:.09em;line-height:1.35}
+h1{font-family:'Unbounded',sans-serif;font-weight:900;font-size:clamp(34px,7vw,72px);line-height:1;letter-spacing:-.01em;margin:28px 0 8px}
+.sub{font-family:'Unbounded',sans-serif;font-weight:700;font-size:clamp(16px,2.6vw,24px);margin:0 0 18px}
+.status{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;background:#5BD08A;flex:none}
+.status.err .dot{background:var(--accent)}
+.banner{margin-top:16px;padding:12px 16px;border-radius:14px;background:rgba(255,138,61,.14);border:1px solid rgba(255,138,61,.5);font-size:14px}
+section{margin-top:44px}
+h2{font-family:'Unbounded',sans-serif;font-weight:700;font-size:20px;margin:0 0 16px}
+.hint{font-size:13px;color:var(--dim);margin:-8px 0 12px}
+@media (min-width:1100px){.hint{display:none}}
+.bracket{display:flex;gap:24px;overflow-x:auto;padding:4px 2px 14px;scroll-snap-type:x proximity}
+.col{flex:0 0 228px;display:flex;flex-direction:column;scroll-snap-align:start}
+.col h3{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.col-body{flex:1;display:flex;flex-direction:column;justify-content:space-around;gap:12px}
+.match{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 10px 8px 12px}
+.match.done{background:var(--card-done)}
+.match.ready{border-color:rgba(255,138,61,.65)}
+.match .mid{position:absolute;top:-9px;right:10px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:0 8px;font-size:11px;font-weight:700;color:var(--muted);line-height:17px}
+.match.ready .mid{color:var(--accent);border-color:rgba(255,138,61,.65)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:30px}
+.row+.row{border-top:1px solid var(--line)}
+.name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:15px}
+.row.tbd .name{color:var(--dim);font-weight:500;font-size:13px}
+.row.lose .name{color:var(--dim)}
+.row.win .name{color:var(--fg);font-weight:700}
+.sc{flex:none;min-width:26px;text-align:center;font-weight:700;font-size:14px;border-radius:8px;padding:1px 6px;color:var(--dim)}
+.row.win .sc{background:var(--accent);color:var(--ink)}
+.match.bye{background:transparent;border-style:dashed}
+.match.bye .row .name{color:var(--muted);font-weight:600}
+.bye-note{font-size:12px;color:var(--dim)}
+.places{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px 18px}
+.places .label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.top5{display:grid;gap:10px;max-width:560px;padding:0;margin:0;list-style:none}
+.top5 li{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 14px}
+.medal{width:44px;height:44px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-weight:900;font-size:19px;border:3px solid}
+.p1{background:linear-gradient(145deg,#FFE58A,#E0AA2E 55%,#B8860B);border-color:#B8860B;color:#3A2600}
+.p2{background:linear-gradient(145deg,#FAFBFC,#C3C8D0 55%,#8A9099);border-color:#8A9099;color:#1F2329}
+.p3{background:linear-gradient(145deg,#F2BC8D,#C77B45 55%,#9C5A2C);border-color:#9C5A2C;color:#2A1406}
+.p4{background:linear-gradient(145deg,#FFC79E,#FF8A3D 60%,#E86F1F);border-color:#E86F1F;color:#2A0409}
+.p5{background:linear-gradient(145deg,#8A2A38,#5A1220 55%,#3A0710);border-color:#FBEEDB;color:#FBEEDB}
+.top5 .who{font-weight:700;font-size:17px}
+.top5 .who.tbd{color:var(--dim);font-weight:500;font-size:15px}
+.layout{display:flex;flex-direction:column}
+.layout.finished #s-top{order:-1}
+footer{margin-top:56px;font-size:13px;color:var(--dim)}
+
+/* светлая тема: бордовая шапка, светлое поле */
+.hero{background:var(--brand);color:var(--cream)}
+.hero .wrap{padding-bottom:36px}
+.hero .status{color:#E6CDB8}
+.hero .banner{background:rgba(255,138,61,.16);border-color:rgba(255,138,61,.55);color:var(--cream)}
+.hero + .wrap{padding-top:8px}
+h2{color:var(--brand)}
+.match{box-shadow:0 1px 2px rgba(58,7,16,.06)}
+.match.done{border-color:var(--line)}
+.match.ready{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,138,61,.15)}
+.match .mid{background:var(--card)}
+.match.ready .mid{color:#B4500F}
+.row.win .sc{background:var(--brand);color:var(--cream)}
+.match.bye{box-shadow:none;border-color:rgba(58,7,16,.22)}
+.top5 li{box-shadow:0 1px 2px rgba(58,7,16,.06)}
+.p5{border-color:var(--brand)}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <div class="brand">
+    <svg viewBox="0 0 100 100" role="img" aria-label="Логотип студсовета">
+      <rect width="100" height="100" rx="10" fill="#2A0409"/>
+      <g fill="none" stroke="#FBEEDB" stroke-width="3.2" stroke-linejoin="round">
+        <rect x="24" y="22" width="22" height="52" rx="1"/><rect x="54" y="22" width="22" height="52" rx="1"/>
+        <rect x="46" y="32" width="8" height="42"/><rect x="21" y="74" width="58" height="5" rx="1"/>
+        <rect x="28" y="28" width="6" height="4" rx="1"/><rect x="37" y="28" width="6" height="4" rx="1"/>
+        <rect x="57" y="28" width="6" height="4" rx="1"/><rect x="66" y="28" width="6" height="4" rx="1"/>
+        <rect x="28" y="37" width="6" height="4" rx="1"/><rect x="37" y="37" width="6" height="4" rx="1"/>
+        <rect x="57" y="37" width="6" height="4" rx="1"/><rect x="66" y="37" width="6" height="4" rx="1"/>
+        <rect x="28" y="46" width="6" height="4" rx="1"/><rect x="37" y="46" width="6" height="4" rx="1"/>
+        <rect x="57" y="46" width="6" height="4" rx="1"/><rect x="66" y="46" width="6" height="4" rx="1"/>
+        <rect x="28" y="58" width="15" height="16" rx="1"/><rect x="57" y="58" width="15" height="16" rx="1"/>
+      </g>
+    </svg>
+    <span>СТУДСОВЕТ<br>ОБЩЕЖИТИЯ</span>
+  </div>
+
+  <h1>ТУРНИР</h1>
+  <p class="sub">по настольному теннису</p>
+  <div class="status" id="status"><span class="dot"></span><span id="status-text">Загружаю…</span></div>
+  <div class="banner" id="banner" hidden></div>
+</div></header>
+
+<div class="wrap">
+  <div class="layout" id="layout">
+    <section id="s-main">
+      <h2>Основная сетка</h2>
+      <p class="hint">Листай сетку вбок →</p>
+      <div class="bracket" id="bracket"></div>
+    </section>
+    <section id="s-places" hidden>
+      <h2>Матчи за места</h2>
+      <div class="places" id="places"></div>
+    </section>
+    <section id="s-top">
+      <h2>Сборная общежития на Спартакиаду</h2>
+      <ol class="top5" id="top5"></ol>
+    </section>
+  </div>
+
+  <footer>Страница обновляется сама каждые 30 секунд.</footer>
+</div>
+
+<script>
+/* ===================== НАСТРОЙКИ ===================== */
+const CONFIG = {
+  // Вставь сюда ссылку на Google Таблицу (или только её ID).
+  // Пока пусто, сайт показывает демо-данные.
+  SHEET: 'https://docs.google.com/spreadsheets/d/1j8dmR7qecklHVkn8kprhbdJ8SgOVDLcmgDRsMJiataU/edit?usp=sharing',
+  TAB_PLAYERS: 'Участники',
+  TAB_MATCHES: 'Матчи',
+  REFRESH_SEC: 30,
+};
+/* ===================================================== */
+
+const DEMO_PLAYERS = [
+  ['1','Артём Ковалёв'],['2','Илья Соколов'],['3','Даниил Морозов'],['4','Максим Волков'],['5','Кирилл Лебедев'],
+  ['','Егор Новиков'],['','Никита Фёдоров'],['','Алина Смирнова'],['','Тимофей Орлов'],['','Мария Кузнецова'],
+  ['','Роман Павлов'],['','Софья Белова'],['','Арсений Зайцев'],
+];
+const DEMO_SCORES = {1:'2:0',2:'1:2',3:'2:1',4:'2:0',5:'0:2',6:'2:0',7:'2:1',8:'2:1',9:'1:2',10:'2:1',12:'2:0'};
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function parseCSV(text){
+  const rows=[]; let row=[], f='', q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){ row.push(f); f=''; }
+    else if(c==='\n'){ row.push(f); rows.push(row); row=[]; f=''; }
+    else if(c!=='\r') f+=c;
+  }
+  if(f!==''||row.length){ row.push(f); rows.push(row); }
+  return rows;
+}
+function colIndex(header, keys, fallback){
+  const i = header.findIndex(h => keys.some(k => String(h).toLowerCase().includes(k)));
+  return i >= 0 ? i : fallback;
+}
+function readPlayers(rows){
+  const h = rows[0] || [];
+  const iName = colIndex(h, ['имя','фио','участ'], 1), iSeed = colIndex(h, ['посев','seed'], 0);
+  const list = rows.slice(1).map((r, idx) => ({ name:(r[iName]||'').trim(), seed:parseFloat(r[iSeed]), idx }))
+    .filter(p => p.name);
+  list.sort((a,b) => {
+    const as = isNaN(a.seed) ? Infinity : a.seed, bs = isNaN(b.seed) ? Infinity : b.seed;
+    return as - bs || a.idx - b.idx;
+  });
+  return list;
+}
+function readScores(rows){
+  const h = rows[0] || [];
+  const iId = colIndex(h, ['матч','№','id'], 0), iSc = colIndex(h, ['сч','score'], 1);
+  const map = {};
+  rows.slice(1).forEach(r => {
+    const id = parseInt(r[iId], 10);
+    const m = String(r[iSc]||'').match(/(\d+)\s*[:\-–—\s]\s*(\d+)/);
+    if(id && m) map[id] = [parseInt(m[1],10), parseInt(m[2],10)];
+  });
+  return map;
+}
+
+function seedOrder(size){
+  let arr=[1,2];
+  while(arr.length<size){ const n=arr.length*2+1; arr=arr.flatMap(s=>[s,n-s]); }
+  return arr;
+}
+
+function build(players, scores){
+  let size=2; while(size<players.length) size*=2;
+  const order = seedOrder(size);
+  const M = (src) => ({ src, id:null, res:null });
+
+  let round=[];
+  for(let i=0;i<size;i+=2) round.push(M([{p:players[order[i]-1] ?? null},{p:players[order[i+1]-1] ?? null}]));
+  const rounds=[round];
+  while(round.length>1){
+    const next=[];
+    for(let i=0;i<round.length;i+=2) next.push(M([{w:round[i]},{w:round[i+1]}]));
+    rounds.push(next); round=next;
+  }
+  const final = rounds[rounds.length-1][0];
+  let third=null, cons=null, fifth=null;
+  if(rounds.length>=2){ const sf=rounds[rounds.length-2]; third=M([{l:sf[0]},{l:sf[1]}]); }
+  if(rounds.length>=3){
+    const qf=rounds[rounds.length-3];
+    cons=[M([{l:qf[0]},{l:qf[1]}]), M([{l:qf[2]},{l:qf[3]}])];
+    fifth=M([{w:cons[0]},{w:cons[1]}]);
+  }
+
+  // структура: какие слоты пустые заранее (проходы)
+  const sNull = (s) => ('p' in s) ? s.p===null : s.w ? sEmpty(s.w) : sBye(s.l);
+  const sEmpty = (m) => sNull(m.src[0]) && sNull(m.src[1]);
+  const sBye = (m) => sNull(m.src[0]) || sNull(m.src[1]);
+
+  // нумерация матчей
+  let n=0;
+  const seq=[...rounds.slice(0,-1).flat(), ...(cons||[]), ...(fifth?[fifth]:[]), ...(third?[third]:[]), final];
+  seq.forEach(m => { m.bye = sBye(m); if(!m.bye) m.id = ++n; });
+
+  const val = (s) => ('p' in s) ? s.p : s.w ? resolve(s.w).w : resolve(s.l).l;
+  function resolve(m){
+    if(m.res) return m.res;
+    const a=val(m.src[0]), b=val(m.src[1]);
+    let r;
+    if(a===null && b===null) r={state:'empty', w:null, l:null};
+    else if(a===undefined || b===undefined) r={state:'wait', w:undefined, l:undefined};
+    else if(a===null || b===null) r={state:'bye', w:a??b, l:null};
+    else {
+      const sc = scores[m.id];
+      if(!sc || sc[0]===sc[1]) r={state:'ready', w:undefined, l:undefined};
+      else r={state:'done', sc, w: sc[0]>sc[1]?a:b, l: sc[0]>sc[1]?b:a};
+    }
+    r.a=a; r.b=b; m.res=r; return r;
+  }
+  [...rounds.flat(), ...(cons||[]), ...(fifth?[fifth]:[]), ...(third?[third]:[])].forEach(resolve);
+
+  const top=[final.res.w, final.res.l, third?third.res.w:null, third?third.res.l:null, fifth?fifth.res.w:null];
+  return { rounds, third, cons, fifth, final, top };
+}
+
+function srcLabel(s){
+  if(s.w) return s.w.id ? `Победитель №${s.w.id}` : 'Ждём соперника';
+  if(s.l) return s.l.id ? `Проигравший №${s.l.id}` : 'Ждём соперника';
+  return '—';
+}
+function cardHTML(m){
+  const r=m.res;
+  if(r.state==='empty') return `<div class="match bye"><div class="row"><span class="bye-note">Матч не нужен</span></div></div>`;
+  if(r.state==='bye' || (m.bye && r.state!=='wait')){
+    const p=r.a??r.b;
+    return `<div class="match bye"><div class="row"><span class="name">${esc(p?p.name:'—')}</span></div><div class="row"><span class="bye-note">проходит без игры</span></div></div>`;
+  }
+  const side=(p,s,i)=>{
+    if(p===undefined) return `<div class="row tbd"><span class="name">${esc(srcLabel(s))}</span></div>`;
+    let cls='', sc='';
+    if(r.state==='done'){ cls = p===r.w ? 'win' : 'lose'; sc = `<span class="sc">${r.sc[i]}</span>`; }
+    return `<div class="row ${cls}"><span class="name">${esc(p.name)}</span>${sc}</div>`;
+  };
+  const id = m.id ? `<span class="mid">№${m.id}</span>` : '';
+  return `<div class="match ${r.state}">${id}${side(r.a,m.src[0],0)}${side(r.b,m.src[1],1)}</div>`;
+}
+function roundName(len){
+  return len===1?'Финал':len===2?'Полуфинал':len===4?'Четвертьфинал':`1/${len} финала`;
+}
+
+function render(players, scores){
+  if(players.length<2){
+    $('bracket').innerHTML = `<p class="bye-note">Пока меньше двух участников, сетки нет.</p>`;
+    $('s-places').hidden=true; $('top5').innerHTML=''; return;
+  }
+  const t = build(players, scores);
+  $('bracket').innerHTML = t.rounds.map(rd =>
+    `<div class="col"><h3>${roundName(rd.length)}</h3><div class="col-body">${rd.map(cardHTML).join('')}</div></div>`
+  ).join('');
+
+  const blocks=[];
+  if(t.cons){
+    blocks.push(`<div><p class="label">Утешительный · 5–8 места</p>${cardHTML(t.cons[0])}</div>`);
+    blocks.push(`<div><p class="label">Утешительный · 5–8 места</p>${cardHTML(t.cons[1])}</div>`);
+    blocks.push(`<div><p class="label">Матч за 5-е место</p>${cardHTML(t.fifth)}</div>`);
+  }
+  if(t.third) blocks.push(`<div><p class="label">Матч за 3-е место</p>${cardHTML(t.third)}</div>`);
+  $('places').innerHTML = blocks.join('');
+  $('s-places').hidden = blocks.length===0;
+
+  $('top5').innerHTML = t.top.map((p,i) => {
+    if(p===null && i>1 && !(i<4?t.third:t.fifth)) return '';
+    const who = p ? `<span class="who">${esc(p.name)}</span>` : `<span class="who tbd">Определится по ходу турнира</span>`;
+    return `<li><span class="medal p${i+1}">${i+1}</span>${who}</li>`;
+  }).join('');
+  $('layout').classList.toggle('finished', !!t.final.res.w);
+}
+
+function sheetId(){
+  const m = CONFIG.SHEET.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : CONFIG.SHEET.trim();
+}
+async function fetchTab(tab){
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId()}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(tab)}&t=${Date.now()}`;
+  const res = await fetch(url, { cache:'no-store' });
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const text = await res.text();
+  if(text.trim().startsWith('<')) throw new Error('нет доступа к таблице');
+  return parseCSV(text);
+}
+function setStatus(ok, text){
+  $('status').classList.toggle('err', !ok);
+  $('status-text').textContent = text;
+}
+const hhmm = () => new Date().toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+
+async function refresh(){
+  if(!CONFIG.SHEET){
+    const players = readPlayers([['Посев','Имя'], ...DEMO_PLAYERS]);
+    render(players, readScores([['Матч','Счёт'], ...Object.entries(DEMO_SCORES)]));
+    setStatus(true, 'Демо-режим');
+    const b=$('banner'); b.hidden=false;
+    b.textContent='Это демо с выдуманными участниками. Чтобы показать настоящий турнир, вставь ссылку на Google Таблицу в CONFIG.SHEET в index.html.';
+    return;
+  }
+  try{
+    const [p, m] = await Promise.all([fetchTab(CONFIG.TAB_PLAYERS), fetchTab(CONFIG.TAB_MATCHES)]);
+    render(readPlayers(p), readScores(m));
+    setStatus(true, `Обновлено в ${hhmm()}`);
+  }catch(e){
+    setStatus(false, `Не получилось обновить (${e.message}). Пробую снова…`);
+  }
+}
+refresh();
+if(CONFIG.SHEET) setInterval(refresh, CONFIG.REFRESH_SEC*1000);
+</script>
+</body>
+</html>
